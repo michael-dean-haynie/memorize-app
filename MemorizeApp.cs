@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Azure;
+using System.Linq;
 using Azure.Data.Tables;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.Storage;
 
 namespace memorize_app
 {
@@ -15,24 +13,20 @@ namespace memorize_app
         public void Run([TimerTrigger("0 */5 * * * *", RunOnStartup = true)]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            string now = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-            
-            // check if there are any memorization items ready for a prompt
-            // load the item that is most overdue for a prompt
-            var storageAccountConn = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-            var tableClient = new TableClient(storageAccountConn, "MemorizationItem");
 
-            string filter = $"NextPromptTimestamp lt datetime'{now}'";
-            var pageable = tableClient.Query<MemorizationItem>(filter, 5);
+            DateTime now = DateTime.UtcNow;
+            string tableName = "MemorizationItem";
+            string storageAccountConn = Environment.GetEnvironmentVariable("AzureWebJobsStorage")
+                ?? throw new Exception("AzureWebJobsStorage environment variable should not be null.");
 
-            var items = new Dictionary<string, MemorizationItem>();
-            foreach (var item in pageable)
-            {
-                items[item.RowKey] = item;
-            }
-            
+            var tableClient = new TableClient(storageAccountConn, tableName);
+            var query = tableClient.Query<MemorizationItem>()
+                .Where(mi => mi.NextPromptTimestamp <= now)
+                .Where(mi => mi.Term == "leonine");
 
-            // send the prompt
+            var result = query.ToList();
+
+            int foo = 1;
 
         }
     }

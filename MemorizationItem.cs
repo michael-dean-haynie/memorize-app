@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Azure;
 using Azure.Data.Tables;
 
@@ -14,4 +13,11 @@ public class MemorizationItem : ITableEntity
     
     public DateTimeOffset CreatedTimestamp { get; set; }
     public DateTimeOffset NextPromptTimestamp { get; set; }
+
+    // Alias
+    public string Term
+    {
+        get => this.RowKey;
+        set => this.RowKey = value;
+    }
 }
