@@ -9,9 +9,9 @@ using Microsoft.Extensions.Logging;
 
 namespace memorize_app
 {
-    public class MemorizeApp
+    public class PromptFunction
     {
-        [FunctionName("MemorizeApp")]
+        [FunctionName("PromptFunction")]
         public  async Task Run([TimerTrigger("0 */5 * * * *", RunOnStartup = true)]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
